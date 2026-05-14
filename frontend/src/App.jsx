@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CloudRain, MapPin, Search, Sun, CloudLightning, CloudSnow, Thermometer, Wind, Droplets, CheckCircle2, Maximize2, X, Settings, Moon, User, Activity } from 'lucide-react';
@@ -380,11 +380,11 @@ export default function App() {
                     </div>
                     {getWeatherIcon(selectedWeather?.condition)}
                   </div>
-                  <div className="grid grid-cols-2 gap-1 text-[10px] font-medium opacity-70 mt-2">
-                    <div>Wind: {selectedWeather?.wind ? selectedWeather.wind + ' km/h' : '--'}</div>
-                    <div>Sunrise: 6:02 AM</div>
-                    <div>Humidity: {selectedWeather?.humidity ? selectedWeather.humidity + '%' : '--'}</div>
-                    <div>Sunset: 8:18 PM</div>
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-1 text-[10px] font-medium opacity-80 mt-3">
+                    <div className="flex items-center gap-1.5"><Wind size={12} className="text-blue-500" /> {selectedWeather?.wind ? selectedWeather.wind + ' km/h' : '--'}</div>
+                    <div className="flex items-center gap-1.5"><Sun size={12} className="text-orange-400" /> 6:02 AM</div>
+                    <div className="flex items-center gap-1.5"><Droplets size={12} className="text-cyan-500" /> {selectedWeather?.humidity ? selectedWeather.humidity + '%' : '--'}</div>
+                    <div className="flex items-center gap-1.5"><Thermometer size={12} className="text-red-400" /> 8:18 PM</div>
                   </div>
                 </div>
 
@@ -536,7 +536,7 @@ export default function App() {
                           className="overflow-hidden mt-4"
                         >
                           <div className="bg-[#1c1c1e] rounded-xl p-4 text-sm text-white/70 border border-blue-500/20">
-                            <strong>{outfit.outfit[activeOutfitItem]}:</strong> Crucial for {weather.condition.toLowerCase()} conditions when it's {Math.round(weather.temperature)}°C outside. Keeps you perfectly comfortable.
+                            <strong>{outfit.outfit[activeOutfitItem]}:</strong> Crucial for {weather.condition.toLowerCase()} conditions when it&apos;s {Math.round(weather.temperature)}°C outside. Keeps you perfectly comfortable.
                           </div>
                         </motion.div>
                       )}
