@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CloudRain, MapPin, Search, Sun, CloudLightning, CloudSnow, Thermometer, Wind, Droplets, CheckCircle2, Maximize2, X, Settings, Moon, User, Activity } from 'lucide-react';
+import { CloudRain, MapPin, Search, Sun, CloudLightning, CloudSnow, Thermometer, Wind, Droplets, Maximize2, X, Settings, Moon, User, Activity } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMap, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
