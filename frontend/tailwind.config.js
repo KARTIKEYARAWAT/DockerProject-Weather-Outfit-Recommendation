@@ -6,20 +6,29 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        heading: ['Sora', 'sans-serif'],
+      },
       colors: {
-        background: '#0f172a',
-        surface: '#1e293b',
-        primary: '#3b82f6',
-        secondary: '#10b981',
+        background: '#0B0F19',
+        surface: '#111827',
+        surfaceLight: '#0F172A',
+        primary: '#3b82f6', // electric blue
+        secondary: '#a855f7', // purple
+        accent: '#22d3ee', // cyan
+        warm: '#fb923c', // soft orange
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'flow': 'flow 2s linear infinite',
+        'blob': 'blob 10s infinite alternate',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
-        flow: {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(100%)' },
+        blob: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+          '100%': { transform: 'translate(0px, 0px) scale(1)' },
         }
       }
     },
