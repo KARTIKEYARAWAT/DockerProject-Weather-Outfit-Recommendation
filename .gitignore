@@ -1,0 +1,24 @@
+# Node
+node_modules/
+dist/
+build/
+.npm/
+
+# Java / Spring Boot
+target/
+*.jar
+*.war
+*.ear
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.class
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Docker
+.env
