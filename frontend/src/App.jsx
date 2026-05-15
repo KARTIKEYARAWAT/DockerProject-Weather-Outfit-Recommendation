@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CloudRain, MapPin, Search, Sun, CloudLightning, CloudSnow, Wind, Droplets, Maximize2, X, Settings, Moon, User, Activity } from 'lucide-react';
+import { CloudRain, MapPin, Search, Sun, CloudLightning, CloudSnow, Thermometer, Wind, Droplets, Maximize2, X, Settings, Moon, User, Activity } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMap, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -390,6 +390,11 @@ export default function App() {
                     <div className="flex items-center gap-1.5">
                       <Moon size={12} className="text-purple-400" /> 
                       {weather?.current?.sunset ? new Date(weather.current.sunset * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--'}
+                    </div>
+                    <div className="flex items-center gap-1.5 col-span-2 border-t border-[#1e293b]/10 pt-2 mt-1">
+                      <Thermometer size={12} className="text-red-500" /> 
+                      <span className="opacity-60">Feels like:</span>
+                      <span className="font-bold">{weather?.current?.feelsLike ? Math.round(weather.current.feelsLike) : '--'}°</span>
                     </div>
                   </div>
                 </div>
