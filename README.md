@@ -77,7 +77,7 @@ Deploying the entire stack locally is incredibly simple. You only need Docker in
 
 2. Boot the infrastructure using Docker Compose:
    ```bash
-   docker-compose up --build -d
+   docker compose up --build -d
    ```
 
 3. Access the platform:
