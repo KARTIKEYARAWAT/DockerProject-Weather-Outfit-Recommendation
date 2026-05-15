@@ -81,23 +81,28 @@ public class ApiController {
                 throw new IllegalArgumentException("lat and lon must be provided.");
             }
             
-            String url = String.format("https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto", lat, lon);
+            String url = String.format("https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&current_weather=true&hourly=temperature_2m,relative_humidity_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto", lat, lon);
             
             // Call the external API
             ResponseEntity<Map> apiResponse = restTemplate.getForEntity(url, Map.class);
             Map<String, Object> body = apiResponse.getBody();
             
-            if (body != null && body.containsKey("current")) {
-                Map<String, Object> current = (Map<String, Object>) body.get("current");
+            if (body != null && body.containsKey("current_weather")) {
+                Map<String, Object> current = (Map<String, Object>) body.get("current_weather");
                 
-                int weatherCode = current.get("weather_code") instanceof Number ? ((Number) current.get("weather_code")).intValue() : 0;
+                int weatherCode = current.get("weathercode") instanceof Number ? ((Number) current.get("weathercode")).intValue() : 0;
                 String condition = parseWeatherCode(weatherCode);
                 
                 response.put("city", city != null ? city : "Your Location");
-                response.put("temperature", current.get("temperature_2m"));
+                response.put("temperature", current.get("temperature"));
                 response.put("condition", condition);
-                response.put("humidity", current.get("relative_humidity_2m"));
-                response.put("wind", current.get("wind_speed_10m")); 
+                response.put("wind", current.get("windspeed")); 
+                
+                if (body.containsKey("hourly")) {
+                    Map<String, Object> hourly = (Map<String, Object>) body.get("hourly");
+                    List<Number> humidityList = (List<Number>) hourly.get("relative_humidity_2m");
+                    response.put("humidity", humidityList != null && !humidityList.isEmpty() ? humidityList.get(0) : "N/A");
+                }
                 
                 if (body.containsKey("daily")) {
                     Map<String, Object> daily = (Map<String, Object>) body.get("daily");
