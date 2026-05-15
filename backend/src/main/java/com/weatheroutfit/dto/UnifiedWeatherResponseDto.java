@@ -93,9 +93,20 @@ public class UnifiedWeatherResponseDto {
         public void setIcon(String icon) { this.icon = icon; }
     }
 
+    public static class AqiData {
+        private int value;
+        private String label;
+
+        public int getValue() { return value; }
+        public void setValue(int value) { this.value = value; }
+        public String getLabel() { return label; }
+        public void setLabel(String label) { this.label = label; }
+    }
+
     private CurrentWeather current = new CurrentWeather();
     private List<HourlyEntry> hourly = new ArrayList<>();
     private List<DailyEntry> daily = new ArrayList<>();
+    private AqiData aqi = new AqiData();
 
     public CurrentWeather getCurrent() { return current; }
     public void setCurrent(CurrentWeather current) { this.current = current; }
@@ -103,4 +114,6 @@ public class UnifiedWeatherResponseDto {
     public void setHourly(List<HourlyEntry> hourly) { this.hourly = hourly; }
     public List<DailyEntry> getDaily() { return daily; }
     public void setDaily(List<DailyEntry> daily) { this.daily = daily; }
+    public AqiData getAqi() { return aqi; }
+    public void setAqi(AqiData aqi) { this.aqi = aqi; }
 }

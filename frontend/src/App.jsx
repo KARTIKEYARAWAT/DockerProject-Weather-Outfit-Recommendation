@@ -173,20 +173,20 @@ export default function App() {
     try {
       const res = await axios.get(`http://localhost:8080/weather?lat=${lat}&lon=${lon}`);
       const data = res.data;
-      if (cityName) data.city = cityName;
+      if (cityName) data.current.city = cityName;
       setWeather(data);
       setSelectedWeather({
         label: 'Right Now',
-        temp: data.temperature,
-        condition: data.condition,
-        humidity: data.humidity,
-        wind: data.wind
+        temp: data.current.temperature,
+        condition: data.current.condition,
+        humidity: data.current.humidity,
+        wind: data.current.windSpeed
       });
       
       const outRes = await axios.post(`http://localhost:8080/recommend`, {
-        city: data.city,
-        temperature: data.temperature?.toString(),
-        condition: data.condition
+        city: data.current.city,
+        temperature: data.current.temperature?.toString(),
+        condition: data.current.condition
       });
       setOutfit(outRes.data);
     } catch (err) {
@@ -382,9 +382,15 @@ export default function App() {
                   </div>
                   <div className="grid grid-cols-2 gap-y-2 gap-x-1 text-[10px] font-medium opacity-80 mt-3">
                     <div className="flex items-center gap-1.5"><Wind size={12} className="text-blue-500" /> {selectedWeather?.wind ? selectedWeather.wind + ' km/h' : '--'}</div>
-                    <div className="flex items-center gap-1.5"><Sun size={12} className="text-orange-400" /> 6:02 AM</div>
+                    <div className="flex items-center gap-1.5">
+                      <Sun size={12} className="text-orange-400" /> 
+                      {weather?.current?.sunrise ? new Date(weather.current.sunrise * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--'}
+                    </div>
                     <div className="flex items-center gap-1.5"><Droplets size={12} className="text-cyan-500" /> {selectedWeather?.humidity ? selectedWeather.humidity + '%' : '--'}</div>
-                    <div className="flex items-center gap-1.5"><Thermometer size={12} className="text-red-400" /> 8:18 PM</div>
+                    <div className="flex items-center gap-1.5">
+                      <Moon size={12} className="text-purple-400" /> 
+                      {weather?.current?.sunset ? new Date(weather.current.sunset * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--'}
+                    </div>
                   </div>
                 </div>
 
@@ -397,16 +403,17 @@ export default function App() {
                       <span className="text-green-400 text-base font-medium mt-1">{weather?.aqi?.label || '--'}</span>
                     </div>
                   ) : activeTab === 'Today' ? (
-                    weather?.todayHourly ? weather.todayHourly.map((hour, i) => {
-                      const label = `Today at ${hour.time}`;
+                    weather?.hourly ? weather.hourly.slice(0, 12).map((hour, i) => {
+                      const timeStr = new Date(hour.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      const label = `Today at ${timeStr}`;
                       const isSelected = selectedWeather?.label === label;
                       return (
                         <div 
                           key={i} 
-                          onClick={() => handleSelectWeather(label, hour.temp, hour.condition)}
+                          onClick={() => handleSelectWeather(label, hour.temp || hour.temperature, hour.condition)}
                           className={`flex-1 rounded-[24px] p-4 flex flex-col items-center justify-between min-w-[70px] cursor-pointer transition-all border ${isSelected ? 'bg-blue-500/20 border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.4)]' : 'bg-[#25262b] border-transparent hover:border-white/10'}`}
                         >
-                          <span className="text-white/70 text-sm font-medium">{hour.time}</span>
+                          <span className="text-white/70 text-sm font-medium">{timeStr}</span>
                           {getWeatherIcon(hour.condition)}
                           <span className="text-2xl font-bold">{Math.round(hour.temp)}°</span>
                         </div>
@@ -417,18 +424,19 @@ export default function App() {
                       </div>
                     ))
                   ) : activeTab === 'Tomorrow' ? (
-                    weather?.tomorrowHourly ? weather.tomorrowHourly.map((hour, i) => {
-                      const label = `Tomorrow at ${hour.time}`;
+                    weather?.hourly ? weather.hourly.slice(24, 36).map((hour, i) => {
+                      const timeStr = new Date(hour.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      const label = `Tomorrow at ${timeStr}`;
                       const isSelected = selectedWeather?.label === label;
                       return (
                         <div 
                           key={i} 
-                          onClick={() => handleSelectWeather(label, hour.temp, hour.condition)}
+                          onClick={() => handleSelectWeather(label, hour.temp || hour.temperature, hour.condition)}
                           className={`flex-1 rounded-[24px] p-4 flex flex-col items-center justify-between min-w-[70px] cursor-pointer transition-all border ${isSelected ? 'bg-blue-500/20 border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.4)]' : 'bg-[#25262b] border-transparent hover:border-white/10'}`}
                         >
-                          <span className="text-white/70 text-sm font-medium">{hour.time}</span>
+                          <span className="text-white/70 text-sm font-medium">{timeStr}</span>
                           {getWeatherIcon(hour.condition)}
-                          <span className="text-2xl font-bold">{Math.round(hour.temp)}°</span>
+                          <span className="text-2xl font-bold">{Math.round(hour.temp || hour.temperature)}°</span>
                         </div>
                       );
                     }) : [1,2,3,4,5].map(i => (
@@ -437,9 +445,9 @@ export default function App() {
                       </div>
                     ))
                   ) : (
-                    weather?.forecast?.slice(1, 6).map((day, i) => {
-                      const dateObj = new Date(day.date);
-                      const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                    weather?.daily?.map((day, i) => {
+                      const dateObj = new Date(day.date * 1000);
+                      const dayName = i === 0 ? 'Today' : dateObj.toLocaleDateString('en-US', { weekday: 'short' });
                       const isSelected = selectedWeather?.label === dayName;
                       return (
                         <div 
@@ -536,7 +544,7 @@ export default function App() {
                           className="overflow-hidden mt-4"
                         >
                           <div className="bg-[#1c1c1e] rounded-xl p-4 text-sm text-white/70 border border-blue-500/20">
-                            <strong>{outfit.outfit[activeOutfitItem]}:</strong> Crucial for {weather.condition.toLowerCase()} conditions when it&apos;s {Math.round(weather.temperature)}°C outside. Keeps you perfectly comfortable.
+                            <strong>{outfit.outfit[activeOutfitItem]}:</strong> Crucial for {weather.current.condition.toLowerCase()} conditions when it&apos;s {Math.round(weather.current.temperature)}°C outside. Keeps you perfectly comfortable.
                           </div>
                         </motion.div>
                       )}

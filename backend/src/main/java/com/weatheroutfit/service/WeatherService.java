@@ -51,17 +51,41 @@ public class WeatherService {
             return cached;
         }
 
-        // Build request URL with required parameters
-        String url = String.format("?latitude=%f&longitude=%f&current_weather=true&hourly=temperature_2m,relative_humidity_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto", lat, lon);
-
-        Mono<OpenMeteoResponse> mono = webClient.get()
-                .uri(url)
+        // Fetch Weather
+        String weatherUrl = String.format("?latitude=%f&longitude=%f&current_weather=true&hourly=temperature_2m,relative_humidity_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto", lat, lon);
+        Mono<OpenMeteoResponse> weatherMono = webClient.get()
+                .uri(weatherUrl)
                 .retrieve()
                 .onStatus(status -> status.isError(), resp -> resp.createException())
                 .bodyToMono(OpenMeteoResponse.class);
 
-        OpenMeteoResponse apiResp = mono.block(); // block because controller is sync
-        UnifiedWeatherResponseDto dto = mapToDto(apiResp, city);
+        // Fetch AQI
+        String aqiUrl = String.format("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=%f&longitude=%f&current=us_aqi", lat, lon);
+        Mono<AqiResponse> aqiMono = webClient.get()
+                .uri(aqiUrl)
+                .retrieve()
+                .onStatus(status -> status.isError(), resp -> resp.createException())
+                .bodyToMono(AqiResponse.class)
+                .onErrorResume(e -> Mono.just(new AqiResponse())); // Fallback on error
+
+        // Zip them together
+        UnifiedWeatherResponseDto dto = Mono.zip(weatherMono, aqiMono)
+                .map(tuple -> {
+                    UnifiedWeatherResponseDto result = mapToDto(tuple.getT1(), city);
+                    if (tuple.getT2() != null && tuple.getT2().current != null) {
+                        int aqiVal = tuple.getT2().current.us_aqi;
+                        UnifiedWeatherResponseDto.AqiData aqiData = new UnifiedWeatherResponseDto.AqiData();
+                        aqiData.setValue(aqiVal);
+                        if (aqiVal <= 50) aqiData.setLabel("Excellent");
+                        else if (aqiVal <= 100) aqiData.setLabel("Moderate");
+                        else if (aqiVal <= 150) aqiData.setLabel("Sensitive");
+                        else aqiData.setLabel("Unhealthy");
+                        result.setAqi(aqiData);
+                    }
+                    return result;
+                })
+                .block();
+
         cache.put(cacheKey, dto);
         return dto;
     }
@@ -94,6 +118,14 @@ public class WeatherService {
         public List<Integer> weathercode;
         public List<Long> sunrise;
         public List<Long> sunset;
+    }
+
+    private static class AqiResponse {
+        public AqiCurrent current;
+    }
+
+    private static class AqiCurrent {
+        public int us_aqi;
     }
 
     // -----------------------------------------------------------------
