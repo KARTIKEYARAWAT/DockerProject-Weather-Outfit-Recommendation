@@ -30,7 +30,7 @@ A sophisticated, full-stack web application that combines real-time meteorologic
 
 ## 🏗 Architecture
 
-The platform is built using a modern, decoupled microservices architecture, entirely orchestrated via Docker Compose for zero-configuration deployments.
+The platform is built using a modern, decoupled microservices architecture, entirely orchestrated via Docker Compose for zero-configuration deployment.
 
 ```mermaid
 graph TD
